@@ -14,55 +14,75 @@ class AuthController extends BaseController {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
 
-            $user = $this->userModel->findByEmail($email);
-
-            if ($user && $this->userModel->verifyPassword($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_name'] = $user['name'];
-                $_SESSION['user_role'] = $user['role'];
-
-                $this->redirect('/');
-            } else {
-                $error = 'Email hoặc mật khẩu không chính xác';
-                $this->render('auth/login', ['error' => $error]);
+            if (empty($email) || empty($password)) {
+                $_SESSION['error'] = 'Vui lòng nhập đầy đủ thông tin';
+                $this->redirect('/login');
             }
-        } else {
-            $this->render('auth/login');
+
+            $user = $this->userModel->getByEmail($email);
+            if (!$user || !password_verify($password, $user['password'])) {
+                $_SESSION['error'] = 'Email hoặc mật khẩu không chính xác';
+                $this->redirect('/login');
+            }
+
+            // Lưu thông tin user vào session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_role'] = $user['role'];
+
+            // Chuyển hướng dựa vào role
+            if ($user['role'] === ROLE_ADMIN) {
+                $this->redirect('/admin');
+            } else {
+                $this->redirect('/');
+            }
         }
+
+        $this->render('auth/login');
     }
 
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errors = $this->validateRequest(['name', 'email', 'password', 'confirm_password']);
-            
-            if (empty($errors)) {
-                if ($_POST['password'] !== $_POST['confirm_password']) {
-                    $errors['confirm_password'] = 'Mật khẩu xác nhận không khớp';
-                } else {
-                    $existingUser = $this->userModel->findByEmail($_POST['email']);
-                    if ($existingUser) {
-                        $errors['email'] = 'Email đã được sử dụng';
-                    } else {
-                        $userData = [
-                            'name' => $_POST['name'],
-                            'email' => $_POST['email'],
-                            'password' => $_POST['password'],
-                            'role' => ROLE_USER
-                        ];
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'password' => $_POST['password'] ?? '',
+                'confirm_password' => $_POST['confirm_password'] ?? '',
+                'phone' => $_POST['phone'] ?? '',
+                'address' => $_POST['address'] ?? ''
+            ];
 
-                        if ($this->userModel->createUser($userData)) {
-                            $this->redirect('/login?registered=1');
-                        } else {
-                            $errors['general'] = 'Có lỗi xảy ra, vui lòng thử lại';
-                        }
-                    }
-                }
+            // Validate dữ liệu
+            if (empty($data['name']) || empty($data['email']) || empty($data['password']) || empty($data['confirm_password'])) {
+                $_SESSION['error'] = 'Vui lòng nhập đầy đủ thông tin';
+                $this->redirect('/register');
             }
 
-            $this->render('auth/register', ['errors' => $errors]);
-        } else {
-            $this->render('auth/register');
+            if ($data['password'] !== $data['confirm_password']) {
+                $_SESSION['error'] = 'Mật khẩu xác nhận không khớp';
+                $this->redirect('/register');
+            }
+
+            if ($this->userModel->getByEmail($data['email'])) {
+                $_SESSION['error'] = 'Email đã tồn tại';
+                $this->redirect('/register');
+            }
+
+            // Mã hóa mật khẩu
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $data['role'] = ROLE_USER;
+
+            // Tạo user mới
+            if ($this->userModel->create($data)) {
+                $_SESSION['success'] = 'Đăng ký thành công. Vui lòng đăng nhập';
+                $this->redirect('/login');
+            } else {
+                $_SESSION['error'] = 'Có lỗi xảy ra. Vui lòng thử lại';
+                $this->redirect('/register');
+            }
         }
+
+        $this->render('auth/register');
     }
 
     public function logout() {

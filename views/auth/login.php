@@ -2,69 +2,57 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm">
+        <div class="col-md-6">
+            <div class="card shadow">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4">Đăng nhập</h2>
-                    
-                    <?php if (isset($error)): ?>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        <?php echo $error; ?>
-                    </div>
+
+                    <?php if (isset($_SESSION['error'])): ?>
+                        <div class="alert alert-danger">
+                            <?php 
+                            echo $_SESSION['error'];
+                            unset($_SESSION['error']);
+                            ?>
+                        </div>
                     <?php endif; ?>
 
-                    <?php if (isset($_GET['registered'])): ?>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        Đăng ký thành công! Vui lòng đăng nhập.
-                    </div>
+                    <?php if (isset($_SESSION['success'])): ?>
+                        <div class="alert alert-success">
+                            <?php 
+                            echo $_SESSION['success'];
+                            unset($_SESSION['success']);
+                            ?>
+                        </div>
                     <?php endif; ?>
 
-                    <form action="<?php echo BASE_URL; ?>?act=login" method="POST">
+                    <form action="<?php echo BASE_URL; ?>/login" method="POST">
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-envelope"></i>
-                                </span>
-                                <input type="email" class="form-control" name="email" required>
-                            </div>
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
+                            <label for="password" class="form-label">Mật khẩu</label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-lock"></i>
-                                </span>
-                                <input type="password" class="form-control" name="password" required>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                             </div>
                         </div>
 
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" name="remember" id="remember">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
                             <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 mb-3">
-                            <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
-                        </button>
-
-                        <div class="text-center">
-                            <a href="<?php echo BASE_URL; ?>?act=forgot-password" class="text-decoration-none">
-                                <i class="fas fa-key me-1"></i>Quên mật khẩu?
-                            </a>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Đăng nhập</button>
                         </div>
                     </form>
 
-                    <hr class="my-4">
-
-                    <div class="text-center">
-                        <p class="mb-0">Chưa có tài khoản?</p>
-                        <a href="<?php echo BASE_URL; ?>?act=register" class="btn btn-outline-primary mt-2">
-                            <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
-                        </a>
+                    <div class="text-center mt-3">
+                        <p>Chưa có tài khoản? <a href="<?php echo BASE_URL; ?>/register">Đăng ký ngay</a></p>
                     </div>
                 </div>
             </div>

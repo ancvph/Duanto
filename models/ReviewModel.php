@@ -81,4 +81,10 @@ class ReviewModel extends BaseModel {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'];
     }
+
+    public function updateStatus($id, $status) {
+        $query = "UPDATE " . $this->table . " SET status = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$status, $id]);
+    }
 } 
