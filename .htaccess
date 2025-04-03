@@ -1,0 +1,37 @@
+RewriteEngine On
+RewriteBase /DuAnTo/
+
+# Không rewrite cho các file và thư mục thực tế
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite các URL thân thiện
+RewriteRule ^$ index.php?act=home [L,QSA]
+RewriteRule ^home/?$ index.php?act=home [L,QSA]
+RewriteRule ^rooms/?$ index.php?act=rooms [L,QSA]
+RewriteRule ^room/([0-9]+)/?$ index.php?act=room-detail&id=$1 [L,QSA]
+RewriteRule ^services/?$ index.php?act=services [L,QSA]
+RewriteRule ^about/?$ index.php?act=about [L,QSA]
+RewriteRule ^contact/?$ index.php?act=contact [L,QSA]
+RewriteRule ^login/?$ index.php?act=login [L,QSA]
+RewriteRule ^register/?$ index.php?act=register [L,QSA]
+RewriteRule ^profile/?$ index.php?act=profile [L,QSA]
+RewriteRule ^my-bookings/?$ index.php?act=my-bookings [L,QSA]
+RewriteRule ^admin/?$ index.php?act=admin [L,QSA]
+RewriteRule ^admin/rooms/?$ index.php?act=admin-rooms [L,QSA]
+RewriteRule ^admin/services/?$ index.php?act=admin-services [L,QSA]
+RewriteRule ^admin/users/?$ index.php?act=admin-users [L,QSA]
+RewriteRule ^admin/bookings/?$ index.php?act=admin-bookings [L,QSA]
+RewriteRule ^admin/reviews/?$ index.php?act=admin-reviews [L,QSA]
+
+# Xử lý lỗi 404
+ErrorDocument 404 /Aicode/DuAnTo/404.php
+
+# Bảo vệ thư mục views
+RewriteRule ^views/ - [F,L]
+
+# Bảo vệ file .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
